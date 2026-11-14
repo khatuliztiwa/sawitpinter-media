@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Sawit Pinter relay</title></head>
+<body style="font-family:sans-serif;background:#1f3d2b;color:#fff;padding:20px">
+<p id="s">Mengirim video...</p>
+<script>
+(async()=>{
+  const f=new URLSearchParams(location.search).get('f');
+  const s=document.getElementById('s');
+  try{
+    const r=await fetch('videos/'+encodeURIComponent(f),{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const b=await r.blob();
+    if(!window.opener) throw new Error('no opener');
+    window.opener.postMessage({sp:1,name:f,blob:b},'*');
+    s.textContent='Terkirim: '+f+' ('+b.size+' bytes)';
+    setTimeout(()=>window.close(),800);
+  }catch(e){ s.textContent='Gagal: '+e.message; if(window.opener) window.opener.postMessage({sp:1,name:f,error:String(e)},'*'); }
+})();
+</script></body></html>
